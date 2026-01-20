@@ -1,38 +1,200 @@
 # StudyByEnergy
 
+> A calm web app that helps students study with less guilt by treating rest as a valid study action.
+
 ## Project Description
-StudyByEnergy is a minimal web app built to help undergraduate and graduate students study with emotional safety and clarity. Unlike typical productivity tools, StudyByEnergy treats rest as a first-class action, and encourages energy-based choices over pressure-driven hustle culture.
+
+StudyByEnergy is a minimal web app built to help undergraduate and graduate students study with emotional safety and clarity. Unlike typical productivity tools, StudyByEnergy treats rest as a first-class action and encourages energy-based choices over pressure-driven hustle culture.
+
+**Core Philosophy**: Rest is not the opposite of productivity — it's part of it.
 
 ## Problem Statement
-Productivity apps often foster guilt, anxiety, and pressure — with gamification, streaks, and language implying “not enough.” This fuels unhealthy study habits and burnout.
+
+Traditional productivity apps often foster guilt, anxiety, and pressure through:
+- Gamification elements (points, badges, levels)
+- Streak counters that make you feel bad for missing a day
+- Language implying you're "not doing enough"
+- Lack of recognition for rest and recovery
+
+This fuels unhealthy study habits and contributes to student burnout, especially in high-stress academic environments.
 
 ## Solution Overview
+
 StudyByEnergy reimagines study sessions as a balance between focused tasks and intentional rest.
-Key features:
-- **Energy Check-In**: Students start by indicating their current energy.
-- **Task Recommendation**: App suggests study or rest actions mindful of energy level.
-- **Rest as Action**: Rest is never penalized; it’s offered as a valid choice.
-- **Session Persistence**: Your choices persist across reloads.
+
+### Key Features
+
+1. **Energy Check-In**
+   - Students start by honestly assessing their current energy level
+   - Three simple options: Low, Medium, High
+   - No judgment, just awareness
+
+2. **Context-Aware Recommendations**
+   - App suggests study or rest actions based on your energy
+   - Low energy? Rest is recommended first
+   - High energy? Great time for deep work
+   - Medium? Balanced approach
+
+3. **Rest as Action**
+   - Rest is never penalized or hidden
+   - Treated as a legitimate, productive choice
+   - Gentle messaging that reinforces self-care
+
+4. **Session Persistence**
+   - Your choices persist across browser reloads
+   - Uses localStorage for simple, privacy-friendly storage
+   - No accounts, no tracking, no data collection
+
+5. **Optional Reflection Chat (Placeholder)**
+   - Future feature for journaling and reflection
+   - Space to process learning experiences
+   - Placeholder implemented for hackathon MVP
 
 ## Technical Architecture
-- **Frontend**: React (Vite SPA)
-- **Styling**: CSS Modules/Tailwind
-- **State**: LocalStorage for persistence
-- **Commit Convention**: Feature-focused
+
+### Tech Stack
+- **Frontend Framework**: React 18 with TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS (calm color palette)
+- **Icons**: Lucide React (minimal, friendly icons)
+- **State Management**: React Hooks + localStorage
+- **Type Safety**: TypeScript strict mode
+
+### Design Principles
+- **Calm Design**: Soft colors, generous spacing, no dark patterns
+- **No Gamification**: Zero streaks, points, or pressure metrics
+- **Emotional Safety**: Language that validates rest and self-care
+- **Accessibility**: Semantic HTML, clear contrast, keyboard navigation
+- **Privacy First**: No external APIs, no user tracking, local-only data
+
+### Project Structure
+```
+study-by-energy/
+├── src/
+│   ├── App.tsx          # Main application component
+│   ├── App.css          # Component styles
+│   ├── main.tsx         # React entry point
+│   └── index.css        # Global styles with Tailwind
+├── public/              # Static assets
+├── index.html           # HTML entry point
+├── tailwind.config.js   # Tailwind configuration
+├── tsconfig.json        # TypeScript configuration
+├── vite.config.ts       # Vite build configuration
+└── package.json         # Dependencies and scripts
+```
 
 ## User Stories
-- As a student, I check in with my energy and feel seen, not judged.
-- As a student, I receive gentle, context-aware recommendations.
-- As a student, I can choose rest, study, or reflect without guilt.
+
+### Energy Check-In Flow
+- **As a student**, I want to check in with my energy level so I can make informed decisions about studying or resting.
+- **As a student**, I want to feel seen and validated, not judged for having low energy.
+
+### Activity Selection
+- **As a student**, I want to receive gentle, context-aware recommendations based on my current state.
+- **As a student**, I want to choose rest without guilt or penalty when I need it.
+- **As a student**, I want to study when I have the energy, knowing it's my choice.
+
+### Session Continuity
+- **As a student**, I want my session to persist if I accidentally close the browser.
+- **As a student**, I want to start a new check-in whenever I'm ready.
+
+### Future Reflection
+- **As a student**, I want to reflect on my study patterns and energy over time.
+- **As a student**, I want to learn what conditions help me study best.
 
 ## Setup Instructions
-1. `npm install`
-2. `npm run dev`
 
-## Team
-- Solo Developer: Mohammed Abdullah
-- Hackathon learning journey: Focus on humane tech.
+### Prerequisites
+- Node.js 18+ and npm
+
+### Installation
+```bash
+# Clone the repository
+git clone https://github.com/mohammedabdullahcs/study-by-energy.git
+cd study-by-energy
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+```
+
+### Available Scripts
+```bash
+npm run dev      # Start development server (http://localhost:5173)
+npm run build    # Build for production
+npm run preview  # Preview production build locally
+npm run lint     # Run ESLint for code quality
+```
+
+### Deployment
+The app is a static SPA and can be deployed to any static hosting service:
+- Vercel, Netlify, GitHub Pages
+- Simply run `npm run build` and deploy the `dist/` folder
+
+## Team Information
+
+**Solo Full-Stack Developer**: Mohammed Abdullah
+
+### Hackathon Learning Journey
+This project represents a learning journey focused on:
+- Building humane technology that prioritizes user wellbeing
+- Creating calm, pressure-free interfaces
+- Challenging productivity culture's harmful patterns
+- Rapid prototyping with modern web tools (React, Vite, Tailwind)
+- Understanding the intersection of technology and mental health
+
+### Development Timeline
+- Conceptualization and planning
+- README and technical architecture
+- React + Vite project setup
+- Core feature implementation (energy check-in, recommendations, persistence)
+- Calm UI design with Tailwind
+- Testing and refinement
 
 ## Future Roadmap
-- Reflection journaling
-- Mobile optimization
+
+### Phase 1 (Current MVP)
+- ✅ Energy check-in system
+- ✅ Context-aware recommendations
+- ✅ Rest as a first-class action
+- ✅ Session persistence
+- ✅ Reflection chat placeholder
+
+### Phase 2 (Post-Hackathon)
+- [ ] Reflection journaling feature
+- [ ] Simple data visualization (energy patterns)
+- [ ] Mobile app optimization
+- [ ] Dark mode for night studying
+- [ ] Pomodoro-style timer (optional, non-pressuring)
+
+### Phase 3 (Future Vision)
+- [ ] Anonymous community insights (aggregated patterns)
+- [ ] Export journal entries
+- [ ] Integration with calendar apps
+- [ ] Accessibility improvements (screen readers, reduced motion)
+
+## Design Constraints
+
+### What We Avoid
+- ❌ No gamification (points, badges, achievements)
+- ❌ No streaks or "days missed" counters
+- ❌ No pressure language ("must," "should," "behind")
+- ❌ No social comparison or leaderboards
+- ❌ No constant notifications or interruptions
+
+### What We Embrace
+- ✅ Clarity and simplicity
+- ✅ Emotional safety and validation
+- ✅ User autonomy and choice
+- ✅ Privacy and data ownership
+- ✅ Calm, minimal aesthetics
+
+## Acknowledgments
+
+Built with care for students who deserve rest. Inspired by the need for more humane productivity tools in academic spaces.
+
+## License
+
+MIT License - Feel free to use, modify, and distribute with attribution.
