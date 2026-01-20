@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Battery, Heart, BookOpen, Coffee, Moon, MessageCircle, Timer, Play, Pause, RotateCcw } from 'lucide-react'
+import { CloudSync } from './components/CloudSync'
+import { syncSession, SessionRecord } from './lib/supabase'
 import './App.css'
 
 type EnergyLevel = 'low' | 'medium' | 'high' | null
@@ -25,6 +27,9 @@ function App() {
   const [sessionComplete, setSessionComplete] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
   const timerRef = useRef<number | null>(null)
+
+  // Cloud sync state - tracks if user is authenticated
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   // Load session from localStorage on mount
   useEffect(() => {
@@ -64,7 +69,7 @@ function App() {
           }
           return prev - 1
         })
-      }, 1000)
+      }, 1000) as unknown as number
     } else if (!isTimerRunning && timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
@@ -125,7 +130,23 @@ function App() {
     setSessionComplete(false)
   }
 
-  const handleCompleteFeedback = () => {
+  const handleCompleteFeedback = async (feedback?: string) => {
+    // Conditionally sync to cloud when authenticated
+    // Design Decision: Never block UI for cloud sync
+    if (isAuthenticated && energyLevel && currentActivity) {
+      const sessionRecord: SessionRecord = {
+        energy_level: energyLevel,
+        activity: currentActivity,
+        duration_minutes: timerDuration,
+        feedback: feedback,
+      }
+      
+      // Fire and forget - don't await
+      syncSession(sessionRecord).catch(err => 
+        console.warn('Background sync failed:', err)
+      )
+    }
+    
     setShowFeedback(false)
     handleReset()
   }
@@ -309,21 +330,21 @@ function App() {
                   
                   <div className="space-y-3">
                     <button
-                      onClick={handleCompleteFeedback}
+                      onClick={() => handleCompleteFeedback('good')}
                       className="w-full p-4 rounded-xl border-2 border-calm-200 hover:border-calm-400 hover:bg-calm-50 transition-all text-left"
                     >
                       <p className="font-medium text-calm-800">😊 Felt good</p>
                       <p className="text-sm text-calm-500">This worked well for my energy</p>
                     </button>
                     <button
-                      onClick={handleCompleteFeedback}
+                      onClick={() => handleCompleteFeedback('okay')}
                       className="w-full p-4 rounded-xl border-2 border-calm-200 hover:border-calm-400 hover:bg-calm-50 transition-all text-left"
                     >
                       <p className="font-medium text-calm-800">😌 Okay</p>
                       <p className="text-sm text-calm-500">It was alright</p>
                     </button>
                     <button
-                      onClick={handleCompleteFeedback}
+                      onClick={() => handleCompleteFeedback('could_be_better')}
                       className="w-full p-4 rounded-xl border-2 border-calm-200 hover:border-calm-400 hover:bg-calm-50 transition-all text-left"
                     >
                       <p className="font-medium text-calm-800">😔 Could be better</p>
@@ -332,7 +353,7 @@ function App() {
                   </div>
                   
                   <button
-                    onClick={handleCompleteFeedback}
+                    onClick={() => handleCompleteFeedback()}
                     className="mt-4 text-calm-500 hover:text-calm-700 transition-colors"
                   >
                     Skip
@@ -551,6 +572,9 @@ function App() {
           <p>Made with care for students who deserve rest.</p>
         </footer>
       </div>
+
+      {/* Optional cloud sync - never blocks core usage */}
+      <CloudSync onAuthChange={setIsAuthenticated} />
     </div>
   )
 }
