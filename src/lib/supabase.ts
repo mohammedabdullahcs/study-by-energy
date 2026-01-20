@@ -32,8 +32,8 @@ export const supabase = isSupabaseConfigured
         // No automatic token refresh to avoid background network calls
         // User must explicitly re-authenticate when session expires
         autoRefreshToken: false,
-        // Don't persist session in localStorage by default
-        // This ensures user has full control over their data
+        // Persist session for user convenience (can sign out anytime)
+        // This allows cross-tab login state
         persistSession: true,
         // Detect auth state changes for conditional syncing
         detectSessionInUrl: true,
@@ -116,7 +116,7 @@ export async function getUserSessions(limit = 10): Promise<SessionRecord[]> {
 
     if (!user) return []
 
-    const { data, error} = await supabase
+    const { data, error } = await supabase
       .from('sessions')
       .select('*')
       .eq('user_id', user.id)

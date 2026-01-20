@@ -60,7 +60,7 @@ function App() {
   // Timer logic
   useEffect(() => {
     if (isTimerRunning && timeRemaining > 0) {
-      timerRef.current = setInterval(() => {
+      timerRef.current = window.setInterval(() => {
         setTimeRemaining(prev => {
           if (prev <= 1) {
             setIsTimerRunning(false)
@@ -69,7 +69,7 @@ function App() {
           }
           return prev - 1
         })
-      }, 1000) as unknown as number
+      }, 1000)
     } else if (!isTimerRunning && timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
