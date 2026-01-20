@@ -60,7 +60,6 @@ function App() {
           if (prev <= 1) {
             setIsTimerRunning(false)
             setSessionComplete(true)
-            if (timerRef.current) clearInterval(timerRef.current)
             return 0
           }
           return prev - 1
@@ -68,12 +67,16 @@ function App() {
       }, 1000)
     } else if (!isTimerRunning && timerRef.current) {
       clearInterval(timerRef.current)
+      timerRef.current = null
     }
     
     return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+        timerRef.current = null
+      }
     }
-  }, [isTimerRunning, timeRemaining])
+  }, [isTimerRunning])
 
   const handleEnergySelect = (level: EnergyLevel) => {
     setEnergyLevel(level)
@@ -99,7 +102,10 @@ function App() {
     setTimeRemaining(0)
     setSessionComplete(false)
     setShowFeedback(false)
-    if (timerRef.current) clearInterval(timerRef.current)
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
     localStorage.removeItem('studyByEnergySession')
   }
 
@@ -505,7 +511,7 @@ function App() {
                       </div>
 
                       <p className="text-calm-600 mb-6">
-                        {pomodoroEnabled && 'Pomodoro mode active • Break after timer'}
+                        {pomodoroEnabled && 'Pomodoro mode: Take a 5-min break after this session'}
                       </p>
                     </div>
                   </div>
