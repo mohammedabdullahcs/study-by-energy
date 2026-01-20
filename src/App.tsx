@@ -200,7 +200,7 @@ function App() {
                 
                 <p className="text-calm-600">
                   {currentActivity === 'study' && 'Take your time. Focus on understanding, not perfection.'}
-                  {currentActivity === 'rest' && 'Rest is part of learning. You\'re doing great.'}
+                  {currentActivity === 'rest' && "Rest is part of learning. You're doing great."}
                   {currentActivity === 'reflect' && 'This is a placeholder for future reflection features.'}
                 </p>
               </div>
