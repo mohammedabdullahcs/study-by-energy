@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Battery, Heart, BookOpen, Coffee, Moon, MessageCircle } from 'lucide-react'
+import { useState, useEffect, useRef } from 'react'
+import { Battery, Heart, BookOpen, Coffee, Moon, MessageCircle, Timer, Play, Pause, RotateCcw } from 'lucide-react'
 import './App.css'
 
 type EnergyLevel = 'low' | 'medium' | 'high' | null
@@ -15,6 +15,16 @@ function App() {
   const [energyLevel, setEnergyLevel] = useState<EnergyLevel>(null)
   const [currentActivity, setCurrentActivity] = useState<Activity>(null)
   const [showReflection, setShowReflection] = useState(false)
+  
+  // Timer states
+  const [showTimer, setShowTimer] = useState(false)
+  const [timerDuration, setTimerDuration] = useState(25) // minutes
+  const [timeRemaining, setTimeRemaining] = useState(0) // seconds
+  const [isTimerRunning, setIsTimerRunning] = useState(false)
+  const [pomodoroEnabled, setPomodoroEnabled] = useState(false)
+  const [sessionComplete, setSessionComplete] = useState(false)
+  const [showFeedback, setShowFeedback] = useState(false)
+  const timerRef = useRef<number | null>(null)
 
   // Load session from localStorage on mount
   useEffect(() => {
@@ -42,6 +52,29 @@ function App() {
     }
   }, [energyLevel, currentActivity])
 
+  // Timer logic
+  useEffect(() => {
+    if (isTimerRunning && timeRemaining > 0) {
+      timerRef.current = setInterval(() => {
+        setTimeRemaining(prev => {
+          if (prev <= 1) {
+            setIsTimerRunning(false)
+            setSessionComplete(true)
+            if (timerRef.current) clearInterval(timerRef.current)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    } else if (!isTimerRunning && timerRef.current) {
+      clearInterval(timerRef.current)
+    }
+    
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [isTimerRunning, timeRemaining])
+
   const handleEnergySelect = (level: EnergyLevel) => {
     setEnergyLevel(level)
     setCurrentActivity(null)
@@ -49,6 +82,9 @@ function App() {
 
   const handleActivitySelect = (activity: Activity) => {
     setCurrentActivity(activity)
+    setShowTimer(false)
+    setSessionComplete(false)
+    setShowFeedback(false)
     if (activity === 'reflect') {
       setShowReflection(true)
     }
@@ -58,7 +94,45 @@ function App() {
     setEnergyLevel(null)
     setCurrentActivity(null)
     setShowReflection(false)
+    setShowTimer(false)
+    setIsTimerRunning(false)
+    setTimeRemaining(0)
+    setSessionComplete(false)
+    setShowFeedback(false)
+    if (timerRef.current) clearInterval(timerRef.current)
     localStorage.removeItem('studyByEnergySession')
+  }
+
+  const handleStartTimer = () => {
+    setShowTimer(true)
+    setTimeRemaining(timerDuration * 60)
+    setSessionComplete(false)
+  }
+
+  const handlePlayPause = () => {
+    setIsTimerRunning(!isTimerRunning)
+  }
+
+  const handleResetTimer = () => {
+    setIsTimerRunning(false)
+    setTimeRemaining(timerDuration * 60)
+    setSessionComplete(false)
+  }
+
+  const handleCompleteFeedback = () => {
+    setShowFeedback(false)
+    handleReset()
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const getTimerProgress = () => {
+    const total = timerDuration * 60
+    return timeRemaining > 0 ? ((total - timeRemaining) / total) * 100 : 0
   }
 
   const getRecommendation = () => {
@@ -187,44 +261,282 @@ function App() {
             </div>
           ) : (
             <div className="space-y-6 text-center">
-              <div className="mb-6">
-                {currentActivity === 'study' && <BookOpen className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
-                {currentActivity === 'rest' && <Moon className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
-                {currentActivity === 'reflect' && <MessageCircle className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
-                
-                <h2 className="text-2xl font-light text-calm-800 mb-2">
-                  {currentActivity === 'study' && 'You chose to study'}
-                  {currentActivity === 'rest' && 'You chose to rest'}
-                  {currentActivity === 'reflect' && 'Reflection space'}
-                </h2>
-                
-                <p className="text-calm-600">
-                  {currentActivity === 'study' && 'Take your time. Focus on understanding, not perfection.'}
-                  {currentActivity === 'rest' && "Rest is part of learning. You're doing great."}
-                  {currentActivity === 'reflect' && 'This is a placeholder for future reflection features.'}
-                </p>
-              </div>
+              {sessionComplete && !showFeedback ? (
+                <div className="space-y-6">
+                  <div className="mb-6">
+                    {currentActivity === 'study' && <BookOpen className="w-16 h-16 mx-auto text-calm-600 mb-4 animate-pulse" />}
+                    {currentActivity === 'rest' && <Moon className="w-16 h-16 mx-auto text-calm-600 mb-4 animate-pulse" />}
+                    
+                    <h2 className="text-2xl font-light text-calm-800 mb-2">
+                      Session complete!
+                    </h2>
+                    
+                    <p className="text-calm-600 mb-6">
+                      {currentActivity === 'study' && "Great work! You gave it your focused attention."}
+                      {currentActivity === 'rest' && "Well rested! You honored your energy needs."}
+                    </p>
+                  </div>
 
-              {showReflection && (
-                <div className="bg-calm-50 rounded-xl p-6 text-left">
-                  <h3 className="text-lg font-medium text-calm-800 mb-3">Reflection Chat (Coming Soon)</h3>
-                  <p className="text-calm-600 mb-4">
-                    In the future, you'll be able to journal and reflect on your study sessions here.
-                  </p>
-                  <div className="space-y-2 text-sm text-calm-500">
-                    <p>• How did this session feel?</p>
-                    <p>• What did you learn about your energy?</p>
-                    <p>• What would help you next time?</p>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setShowFeedback(true)}
+                      className="w-full px-6 py-3 bg-calm-800 text-white rounded-lg hover:bg-calm-700 transition-colors"
+                    >
+                      Share how it went (optional)
+                    </button>
+                    <button
+                      onClick={handleReset}
+                      className="w-full px-6 py-3 border-2 border-calm-300 text-calm-700 rounded-lg hover:bg-calm-50 transition-colors"
+                    >
+                      New check-in
+                    </button>
                   </div>
                 </div>
-              )}
+              ) : showFeedback ? (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-light text-calm-800 mb-4">
+                    How did it feel?
+                  </h2>
+                  <p className="text-calm-600 mb-6">
+                    Your reflection helps you understand your energy patterns better.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <button
+                      onClick={handleCompleteFeedback}
+                      className="w-full p-4 rounded-xl border-2 border-calm-200 hover:border-calm-400 hover:bg-calm-50 transition-all text-left"
+                    >
+                      <p className="font-medium text-calm-800">😊 Felt good</p>
+                      <p className="text-sm text-calm-500">This worked well for my energy</p>
+                    </button>
+                    <button
+                      onClick={handleCompleteFeedback}
+                      className="w-full p-4 rounded-xl border-2 border-calm-200 hover:border-calm-400 hover:bg-calm-50 transition-all text-left"
+                    >
+                      <p className="font-medium text-calm-800">😌 Okay</p>
+                      <p className="text-sm text-calm-500">It was alright</p>
+                    </button>
+                    <button
+                      onClick={handleCompleteFeedback}
+                      className="w-full p-4 rounded-xl border-2 border-calm-200 hover:border-calm-400 hover:bg-calm-50 transition-all text-left"
+                    >
+                      <p className="font-medium text-calm-800">😔 Could be better</p>
+                      <p className="text-sm text-calm-500">Maybe try different timing next time</p>
+                    </button>
+                  </div>
+                  
+                  <button
+                    onClick={handleCompleteFeedback}
+                    className="mt-4 text-calm-500 hover:text-calm-700 transition-colors"
+                  >
+                    Skip
+                  </button>
+                </div>
+              ) : !showTimer ? (
+                <div className="space-y-6">
+                  <div className="mb-6">
+                    {currentActivity === 'study' && <BookOpen className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
+                    {currentActivity === 'rest' && <Moon className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
+                    {currentActivity === 'reflect' && <MessageCircle className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
+                    
+                    <h2 className="text-2xl font-light text-calm-800 mb-2">
+                      {currentActivity === 'study' && 'You chose to study'}
+                      {currentActivity === 'rest' && 'You chose to rest'}
+                      {currentActivity === 'reflect' && 'Reflection space'}
+                    </h2>
+                    
+                    <p className="text-calm-600">
+                      {currentActivity === 'study' && 'Take your time. Focus on understanding, not perfection.'}
+                      {currentActivity === 'rest' && "Rest is part of learning. You're doing great."}
+                      {currentActivity === 'reflect' && 'This is a placeholder for future reflection features.'}
+                    </p>
+                  </div>
 
-              <button
-                onClick={handleReset}
-                className="mt-8 px-6 py-3 bg-calm-800 text-white rounded-lg hover:bg-calm-700 transition-colors"
-              >
-                New check-in
-              </button>
+                  {currentActivity !== 'reflect' && (
+                    <div className="bg-calm-50 rounded-xl p-6 space-y-4">
+                      <div className="flex items-center justify-center mb-4">
+                        <Timer className="w-6 h-6 text-calm-600 mr-2" />
+                        <h3 className="text-lg font-medium text-calm-800">Set a timer (optional)</h3>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-3 mb-4">
+                        <button
+                          onClick={() => setTimerDuration(10)}
+                          className={`p-3 rounded-lg border-2 transition-all ${
+                            timerDuration === 10 
+                              ? 'border-calm-600 bg-calm-600 text-white' 
+                              : 'border-calm-200 hover:border-calm-400'
+                          }`}
+                        >
+                          10 min
+                        </button>
+                        <button
+                          onClick={() => setTimerDuration(25)}
+                          className={`p-3 rounded-lg border-2 transition-all ${
+                            timerDuration === 25 
+                              ? 'border-calm-600 bg-calm-600 text-white' 
+                              : 'border-calm-200 hover:border-calm-400'
+                          }`}
+                        >
+                          25 min
+                        </button>
+                        <button
+                          onClick={() => setTimerDuration(45)}
+                          className={`p-3 rounded-lg border-2 transition-all ${
+                            timerDuration === 45 
+                              ? 'border-calm-600 bg-calm-600 text-white' 
+                              : 'border-calm-200 hover:border-calm-400'
+                          }`}
+                        >
+                          45 min
+                        </button>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-sm text-calm-600 flex justify-between">
+                          <span>Custom: {timerDuration} minutes</span>
+                        </label>
+                        <input
+                          type="range"
+                          min="5"
+                          max="90"
+                          step="5"
+                          value={timerDuration}
+                          onChange={(e) => setTimerDuration(Number(e.target.value))}
+                          className="w-full h-2 bg-calm-200 rounded-lg appearance-none cursor-pointer accent-calm-600"
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-center pt-2">
+                        <label className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={pomodoroEnabled}
+                            onChange={(e) => setPomodoroEnabled(e.target.checked)}
+                            className="w-4 h-4 text-calm-600 rounded focus:ring-calm-500 cursor-pointer"
+                          />
+                          <span className="ml-2 text-sm text-calm-600">Enable Pomodoro (5 min breaks)</span>
+                        </label>
+                      </div>
+
+                      <button
+                        onClick={handleStartTimer}
+                        className="w-full mt-4 px-6 py-3 bg-calm-800 text-white rounded-lg hover:bg-calm-700 transition-colors"
+                      >
+                        Start Timer
+                      </button>
+                    </div>
+                  )}
+
+                  {showReflection && (
+                    <div className="bg-calm-50 rounded-xl p-6 text-left">
+                      <h3 className="text-lg font-medium text-calm-800 mb-3">Reflection Chat (Coming Soon)</h3>
+                      <p className="text-calm-600 mb-4">
+                        In the future, you'll be able to journal and reflect on your study sessions here.
+                      </p>
+                      <div className="space-y-2 text-sm text-calm-500">
+                        <p>• How did this session feel?</p>
+                        <p>• What did you learn about your energy?</p>
+                        <p>• What would help you next time?</p>
+                      </div>
+                    </div>
+                  )}
+
+                  <button
+                    onClick={handleReset}
+                    className="mt-8 px-6 py-3 bg-calm-800 text-white rounded-lg hover:bg-calm-700 transition-colors"
+                  >
+                    New check-in
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* Ambient visual background */}
+                  <div className="relative mb-8">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                      <div 
+                        className="w-64 h-64 rounded-full animate-pulse"
+                        style={{
+                          background: currentActivity === 'study' 
+                            ? 'radial-gradient(circle, rgba(59,130,246,0.5) 0%, rgba(59,130,246,0) 70%)'
+                            : 'radial-gradient(circle, rgba(147,197,253,0.5) 0%, rgba(147,197,253,0) 70%)',
+                          animationDuration: '4s'
+                        }}
+                      ></div>
+                    </div>
+                    
+                    <div className="relative">
+                      {currentActivity === 'study' && <BookOpen className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
+                      {currentActivity === 'rest' && <Moon className="w-16 h-16 mx-auto text-calm-600 mb-4" />}
+                      
+                      <h2 className="text-2xl font-light text-calm-800 mb-2">
+                        {currentActivity === 'study' ? 'Focus time' : 'Rest time'}
+                      </h2>
+                      
+                      <div className="text-6xl font-light text-calm-800 my-8">
+                        {formatTime(timeRemaining)}
+                      </div>
+
+                      {/* Progress circle */}
+                      <div className="relative w-32 h-32 mx-auto mb-6">
+                        <svg className="transform -rotate-90 w-32 h-32">
+                          <circle
+                            cx="64"
+                            cy="64"
+                            r="60"
+                            stroke="currentColor"
+                            strokeWidth="8"
+                            fill="none"
+                            className="text-calm-200"
+                          />
+                          <circle
+                            cx="64"
+                            cy="64"
+                            r="60"
+                            stroke="currentColor"
+                            strokeWidth="8"
+                            fill="none"
+                            strokeDasharray={`${2 * Math.PI * 60}`}
+                            strokeDashoffset={`${2 * Math.PI * 60 * (1 - getTimerProgress() / 100)}`}
+                            className="text-calm-600 transition-all duration-1000"
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                      </div>
+
+                      <p className="text-calm-600 mb-6">
+                        {pomodoroEnabled && 'Pomodoro mode active • Break after timer'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3 justify-center">
+                    <button
+                      onClick={handlePlayPause}
+                      className="px-8 py-3 bg-calm-800 text-white rounded-lg hover:bg-calm-700 transition-colors flex items-center gap-2"
+                    >
+                      {isTimerRunning ? (
+                        <><Pause className="w-5 h-5" /> Pause</>
+                      ) : (
+                        <><Play className="w-5 h-5" /> {timeRemaining === timerDuration * 60 ? 'Start' : 'Resume'}</>
+                      )}
+                    </button>
+                    <button
+                      onClick={handleResetTimer}
+                      className="px-6 py-3 border-2 border-calm-300 text-calm-700 rounded-lg hover:bg-calm-50 transition-colors flex items-center gap-2"
+                    >
+                      <RotateCcw className="w-5 h-5" /> Reset
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={handleReset}
+                    className="mt-4 text-calm-500 hover:text-calm-700 transition-colors"
+                  >
+                    End session
+                  </button>
+                </div>
+              )}
             </div>
           )}
         </main>
