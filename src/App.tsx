@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
-import { Battery, Heart, BookOpen, Coffee, Moon, MessageCircle, Timer, Play, Pause, RotateCcw } from 'lucide-react'
+import { Battery, Heart, BookOpen, Coffee, Moon, MessageCircle, Timer, Play, Pause, RotateCcw, History } from 'lucide-react'
 import { CloudSync } from './components/CloudSync'
+import { PastSessions } from './components/PastSessions'
 import { syncSession, SessionRecord } from './lib/supabase'
 import './App.css'
 
@@ -30,6 +31,7 @@ function App() {
 
   // Cloud sync state - tracks if user is authenticated
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showPastSessions, setShowPastSessions] = useState(false)
 
   // Load session from localStorage on mount
   useEffect(() => {
@@ -195,9 +197,18 @@ function App() {
     <div className="min-h-screen bg-calm-50 flex items-center justify-center p-4">
       <div className="max-w-2xl w-full">
         <header className="text-center mb-12">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center justify-center mb-4 relative">
             <Battery className="w-8 h-8 text-calm-600 mr-2" />
             <h1 className="text-4xl font-light text-calm-800">StudyByEnergy</h1>
+            {isAuthenticated && (
+              <button
+                onClick={() => setShowPastSessions(true)}
+                className="absolute right-0 p-2 text-calm-500 hover:text-calm-700 transition-colors rounded-lg hover:bg-calm-100"
+                title="View your journey"
+              >
+                <History className="w-6 h-6" />
+              </button>
+            )}
           </div>
           <p className="text-calm-600 text-lg">Study with less guilt. Rest is valid.</p>
         </header>
@@ -575,6 +586,14 @@ function App() {
 
       {/* Optional cloud sync - never blocks core usage */}
       <CloudSync onAuthChange={setIsAuthenticated} />
+
+      {/* Past sessions view - gentle reflection */}
+      {showPastSessions && (
+        <PastSessions
+          isAuthenticated={isAuthenticated}
+          onClose={() => setShowPastSessions(false)}
+        />
+      )}
     </div>
   )
 }
