@@ -91,13 +91,16 @@ function App() {
   }
 
   const handleActivitySelect = (activity: Activity) => {
+    // Redirect to Chatbase help page when reflect is clicked
+    if (activity === 'reflect') {
+      window.location.href = '/help'
+      return
+    }
+    
     setCurrentActivity(activity)
     setShowTimer(false)
     setSessionComplete(false)
     setShowFeedback(false)
-    if (activity === 'reflect') {
-      setShowReflection(true)
-    }
   }
 
   const handleReset = () => {
