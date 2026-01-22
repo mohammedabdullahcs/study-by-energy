@@ -91,9 +91,9 @@ function App() {
   }
 
   const handleActivitySelect = (activity: Activity) => {
-    // Redirect to Chatbase help page when reflect is clicked
+    // Redirect to Chatbase reflection page when reflect is clicked
     if (activity === 'reflect') {
-      window.location.href = '/help'
+      window.location.href = '/reflect'
       return
     }
     
