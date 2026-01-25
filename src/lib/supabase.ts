@@ -22,6 +22,28 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 // Check if Supabase is configured
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
+// Diagnostics: boolean-only environment checks (no secrets)
+// Helps confirm Vite env replacement and Vercel env availability in production.
+if (typeof window !== 'undefined') {
+  // Whether Vite's env is present at runtime
+  const viteEnvAvailable = typeof import.meta.env !== 'undefined'
+  // Whether the specific Supabase env vars are set (boolean only, no values)
+  const urlPresent = Boolean(import.meta.env.VITE_SUPABASE_URL)
+  const anonKeyPresent = Boolean(import.meta.env.VITE_SUPABASE_ANON_KEY)
+
+  // Single consolidated log for easier reading in production console
+  // Example output: { viteEnvAvailable: true, urlPresent: true, anonKeyPresent: true, isSupabaseConfigured: true }
+  // Note: does not print actual keys.
+  // Remove after verification to keep console clean.
+  // eslint-disable-next-line no-console
+  console.log('[Env Diagnostics]', {
+    viteEnvAvailable,
+    urlPresent,
+    anonKeyPresent,
+    isSupabaseConfigured,
+  })
+}
+
 /**
  * Supabase client instance
  * Returns null if not configured - app continues to work locally
