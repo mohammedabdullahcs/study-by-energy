@@ -7,7 +7,7 @@
  * - Can be collapsed to stay out of the way
  * - No pressure language ("sync now", "backup your data")
  * - Calm, gentle invitation to use cloud features
- * - Triggered redeploy on Vercel
+ * - Again Triggered redeploy on Vercel
  */
 
 import { useState, useEffect } from 'react'
