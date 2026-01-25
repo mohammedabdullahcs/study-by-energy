@@ -1,12 +1,13 @@
 /**
  * Optional Cloud Sync Component
- * 
+ *
  * Design Decision: Non-Blocking Auth
  * - Completely optional - app works fine without it
  * - Shows in a subtle corner, never modal or intrusive
  * - Can be collapsed to stay out of the way
  * - No pressure language ("sync now", "backup your data")
  * - Calm, gentle invitation to use cloud features
+ * - Triggered redeploy on Vercel
  */
 
 import { useState, useEffect } from 'react'
