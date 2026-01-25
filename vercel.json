@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/reflect",
+      "destination": "https://www.chatbase.co/Ju1uRkv5Uue6tSrMwLcp6/help"
+    },
+    {
+      "source": "/reflect/:path*",
+      "destination": "https://www.chatbase.co/Ju1uRkv5Uue6tSrMwLcp6/help/:path*"
+    },
+    {
+      "source": "/__cb/:path*",
+      "destination": "https://www.chatbase.co/__cb/:path*"
+    },
+    {
+      "source": "/api/chat/Ju1uRkv5Uue6tSrMwLcp6/:path*",
+      "destination": "https://www.chatbase.co/api/chat/Ju1uRkv5Uue6tSrMwLcp6/:path*"
+    }
+  ]
+}
