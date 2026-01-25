@@ -46,9 +46,6 @@ export function CloudSync({ onAuthChange }: CloudSyncProps) {
     return () => subscription.unsubscribe()
   }, [onAuthChange])
 
-  // Debug: Check if Supabase is configured
-  console.log('isSupabaseConfigured:', isSupabaseConfigured)
-
   // Don't show if Supabase not configured
   if (!isSupabaseConfigured) return null
 
