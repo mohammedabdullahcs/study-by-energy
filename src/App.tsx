@@ -122,6 +122,7 @@ function App() {
   const handleStartTimer = () => {
     setShowTimer(true)
     setTimeRemaining(timerDuration * 60)
+    setIsTimerRunning(true)
     setSessionComplete(false)
   }
 
