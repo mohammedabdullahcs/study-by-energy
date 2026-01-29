@@ -27,6 +27,7 @@ function App() {
   const [pomodoroEnabled, setPomodoroEnabled] = useState(false)
   const [sessionComplete, setSessionComplete] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [showTestDropdown, setShowTestDropdown] = useState(false)
   const timerRef = useRef<number | null>(null)
 
   // Cloud sync state - tracks if user is authenticated
@@ -121,9 +122,7 @@ function App() {
 
   const handleStartTimer = () => {
     setShowTimer(true)
-    // If timerDuration < 10, treat as seconds; otherwise minutes
-    const durationInSeconds = timerDuration < 10 ? timerDuration : timerDuration * 60
-    setTimeRemaining(durationInSeconds)
+    setTimeRemaining(timerDuration * 60)
     setIsTimerRunning(true)
     setSessionComplete(false)
   }
@@ -134,9 +133,7 @@ function App() {
 
   const handleResetTimer = () => {
     setIsTimerRunning(false)
-    // If timerDuration < 10, treat as seconds; otherwise minutes
-    const durationInSeconds = timerDuration < 10 ? timerDuration : timerDuration * 60
-    setTimeRemaining(durationInSeconds)
+    setTimeRemaining(timerDuration * 60)
     setSessionComplete(false)
   }
 
@@ -168,8 +165,7 @@ function App() {
   }
 
   const getTimerProgress = () => {
-    // If timerDuration < 10, treat as seconds; otherwise minutes
-    const total = timerDuration < 10 ? timerDuration : timerDuration * 60
+    const total = timerDuration * 60
     return timeRemaining > 0 ? ((total - timeRemaining) / total) * 100 : 0
   }
 
@@ -406,17 +402,33 @@ function App() {
                         <h3 className="text-lg font-medium text-calm-800">Set a timer (optional)</h3>
                       </div>
                       
-                      <div className="grid grid-cols-4 gap-3 mb-4">
+                      {/* Test dropdown */}
+                      <div className="relative mb-4">
                         <button
-                          onClick={() => setTimerDuration(5)}
-                          className={`p-2 rounded-lg border-2 transition-all text-sm ${
-                            timerDuration === 5 
-                              ? 'border-red-600 bg-red-600 text-white' 
-                              : 'border-red-200 hover:border-red-400'
-                          }`}
+                          onClick={() => setShowTestDropdown(!showTestDropdown)}
+                          className="flex items-center justify-center w-full p-2 text-calm-500 hover:text-calm-700 transition-colors"
                         >
-                          5 sec
+                          <span className="text-lg">{showTestDropdown ? '▲' : '▼'}</span>
                         </button>
+                        {showTestDropdown && (
+                          <div className="absolute top-0 left-0 right-0 bg-white border border-calm-200 rounded-lg shadow-lg p-3 z-10">
+                            <div className="text-center mb-2">
+                              <p className="text-sm font-medium text-calm-800">For testing 🧪</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                setTimerDuration(5/60) // 5 seconds in minutes
+                                setShowTestDropdown(false)
+                              }}
+                              className="w-full p-2 bg-orange-100 hover:bg-orange-200 text-orange-800 rounded-lg transition-colors text-sm font-medium"
+                            >
+                              5 sec
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-3 mb-4">
                         <button
                           onClick={() => setTimerDuration(10)}
                           className={`p-3 rounded-lg border-2 transition-all ${
@@ -451,13 +463,13 @@ function App() {
 
                       <div className="space-y-2">
                         <label className="text-sm text-calm-600 flex justify-between">
-                          <span>Custom: {timerDuration} {timerDuration < 10 ? 'seconds' : 'minutes'}</span>
+                          <span>Custom: {timerDuration === 5/60 ? '5 sec' : `${timerDuration} minutes`}</span>
                         </label>
                         <input
                           type="range"
-                          min="1"
+                          min="5"
                           max="90"
-                          step="1"
+                          step="5"
                           value={timerDuration}
                           onChange={(e) => setTimerDuration(Number(e.target.value))}
                           className="w-full h-2 bg-calm-200 rounded-lg appearance-none cursor-pointer accent-calm-600"
