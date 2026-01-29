@@ -121,7 +121,9 @@ function App() {
 
   const handleStartTimer = () => {
     setShowTimer(true)
-    setTimeRemaining(timerDuration * 60)
+    // If timerDuration < 10, treat as seconds; otherwise minutes
+    const durationInSeconds = timerDuration < 10 ? timerDuration : timerDuration * 60
+    setTimeRemaining(durationInSeconds)
     setIsTimerRunning(true)
     setSessionComplete(false)
   }
@@ -132,7 +134,9 @@ function App() {
 
   const handleResetTimer = () => {
     setIsTimerRunning(false)
-    setTimeRemaining(timerDuration * 60)
+    // If timerDuration < 10, treat as seconds; otherwise minutes
+    const durationInSeconds = timerDuration < 10 ? timerDuration : timerDuration * 60
+    setTimeRemaining(durationInSeconds)
     setSessionComplete(false)
   }
 
@@ -164,7 +168,8 @@ function App() {
   }
 
   const getTimerProgress = () => {
-    const total = timerDuration * 60
+    // If timerDuration < 10, treat as seconds; otherwise minutes
+    const total = timerDuration < 10 ? timerDuration : timerDuration * 60
     return timeRemaining > 0 ? ((total - timeRemaining) / total) * 100 : 0
   }
 
@@ -401,7 +406,17 @@ function App() {
                         <h3 className="text-lg font-medium text-calm-800">Set a timer (optional)</h3>
                       </div>
                       
-                      <div className="grid grid-cols-3 gap-3 mb-4">
+                      <div className="grid grid-cols-4 gap-3 mb-4">
+                        <button
+                          onClick={() => setTimerDuration(5)}
+                          className={`p-2 rounded-lg border-2 transition-all text-sm ${
+                            timerDuration === 5 
+                              ? 'border-red-600 bg-red-600 text-white' 
+                              : 'border-red-200 hover:border-red-400'
+                          }`}
+                        >
+                          5 sec
+                        </button>
                         <button
                           onClick={() => setTimerDuration(10)}
                           className={`p-3 rounded-lg border-2 transition-all ${
@@ -436,13 +451,13 @@ function App() {
 
                       <div className="space-y-2">
                         <label className="text-sm text-calm-600 flex justify-between">
-                          <span>Custom: {timerDuration} minutes</span>
+                          <span>Custom: {timerDuration} {timerDuration < 10 ? 'seconds' : 'minutes'}</span>
                         </label>
                         <input
                           type="range"
-                          min="5"
+                          min="1"
                           max="90"
-                          step="5"
+                          step="1"
                           value={timerDuration}
                           onChange={(e) => setTimerDuration(Number(e.target.value))}
                           className="w-full h-2 bg-calm-200 rounded-lg appearance-none cursor-pointer accent-calm-600"
